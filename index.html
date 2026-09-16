@@ -1,95 +1,798 @@
-```html
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Meine Webseite</title>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <meta name="description"
+          content="Portfolio von DEIN NAME – ETH Zürich Elektrotechnik">
+
+    <title>DEIN NAME — Electrical Engineering</title>
 
     <link rel="stylesheet" href="style.css">
 </head>
 
+
 <body>
 
-    <!-- Navigation -->
-    <header>
-        <nav>
-            <div class="logo">Meine Webseite</div>
+<!-- =========================================
+     NAVIGATION
+========================================= -->
 
-            <div class="nav-links">
-                <a href="#home">Start</a>
-                <a href="#ueber-mich">Über mich</a>
-                <a href="#kontakt">Kontakt</a>
-            </div>
-        </nav>
-    </header>
+<header class="navbar">
 
+    <div class="nav-container">
 
-    <!-- Startbereich -->
-    <section id="home" class="hero">
-
-        <div class="hero-text">
-            <p class="kleiner-text">WILLKOMMEN</p>
-
-            <h1>Meine eigene Webseite</h1>
-
-            <p>
-                Das ist meine erste Webseite, die mit HTML und CSS
-                erstellt und über GitHub veröffentlicht wurde.
-            </p>
-
-            <div class="buttons">
-                <a href="#ueber-mich" class="button">Mehr erfahren</a>
-
-                <a href="#kontakt" class="button button-outline">
-                    Kontakt
-                </a>
-            </div>
-        </div>
-
-        <div class="hero-image">
-            <img src="bilder/hero.jpg" alt="Bild meiner Webseite">
-        </div>
-
-    </section>
-
-
-    <!-- Über mich -->
-    <section id="ueber-mich" class="section">
-
-        <h2>Über mich</h2>
-
-        <p>
-            Hallo! Ich bin [DEIN NAME].
-            Hier kannst du etwas über dich, dein Hobby,
-            dein Projekt oder deine Interessen schreiben.
-        </p>
-
-    </section>
-
-
-    <!-- Kontakt -->
-    <section id="kontakt" class="section kontakt">
-
-        <h2>Kontakt</h2>
-
-        <p>
-            Du kannst mich über diesen Button erreichen:
-        </p>
-
-        <a href="mailto:deine-email@example.com" class="button">
-            E-Mail schreiben
+        <a href="#home" class="logo">
+            DN<span>.</span>
         </a>
 
-    </section>
+        <nav>
+
+            <a href="#about">About</a>
+            <a href="#projects">Projects</a>
+            <a href="#cv">CV</a>
+            <a href="#contact">Contact</a>
+
+        </nav>
+
+    </div>
+
+</header>
 
 
-    <!-- Footer -->
-    <footer>
-        <p>© 2026 Meine Webseite</p>
-    </footer>
+<main>
+
+
+<!-- =========================================
+     HERO
+========================================= -->
+
+<section id="home" class="hero">
+
+    <div class="hero-container">
+
+        <div class="hero-left">
+
+            <p class="terminal-line">
+                <span>~/</span> portfolio
+            </p>
+
+            <h1>
+                DEIN<br>
+                NAME<span>.</span>
+            </h1>
+
+            <h2>
+                Electrical Engineering Student
+                <br>
+                <span>@ ETH Zürich</span>
+            </h2>
+
+            <p class="intro">
+
+                Ich interessiere mich für Robotik,
+                Embedded Systems und die Verbindung
+                von Hardware und Software.
+
+            </p>
+
+
+            <div class="hero-buttons">
+
+                <a href="#projects" class="button">
+                    View Projects
+                </a>
+
+                <a href="lebenslauf.pdf"
+                   target="_blank"
+                   class="button secondary">
+
+                    View CV
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="hero-right">
+
+            <div class="technical-box">
+
+                <div class="box-header">
+
+                    <span class="status-dot"></span>
+
+                    currently_building
+
+                </div>
+
+
+                <div class="code">
+
+                    <p>
+                        <span class="number">01</span>
+                        <span class="keyword">const</span>
+                        focus =
+                    </p>
+
+                    <p>
+                        <span class="number">02</span>
+                        &nbsp;&nbsp;[
+                    </p>
+
+                    <p>
+                        <span class="number">03</span>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <span class="string">
+                            "Robotics"
+                        </span>,
+                    </p>
+
+                    <p>
+                        <span class="number">04</span>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <span class="string">
+                            "Embedded Systems"
+                        </span>,
+                    </p>
+
+                    <p>
+                        <span class="number">05</span>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <span class="string">
+                            "Control"
+                        </span>,
+                    </p>
+
+                    <p>
+                        <span class="number">06</span>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <span class="string">
+                            "Computer Vision"
+                        </span>
+                    </p>
+
+                    <p>
+                        <span class="number">07</span>
+                        &nbsp;&nbsp;];
+                    </p>
+
+                    <p>
+                        <span class="number">08</span>
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================================
+     ABOUT
+========================================= -->
+
+<section id="about" class="section">
+
+    <div class="section-header">
+
+        <span class="section-number">
+            01
+        </span>
+
+        <h2>About me</h2>
+
+    </div>
+
+
+    <div class="about-grid">
+
+
+        <div class="about-text">
+
+            <p class="large-text">
+
+                Engineering is where I like to
+                turn ideas into working systems.
+
+            </p>
+
+
+            <p>
+
+                Ich studiere Elektrotechnik an der
+                ETH Zürich und beschäftige mich
+                besonders mit der Entwicklung
+                technischer Systeme.
+
+            </p>
+
+
+            <p>
+
+                Dabei interessiert mich besonders
+                die Schnittstelle zwischen Elektronik,
+                Programmierung und mechanischen
+                Systemen.
+
+            </p>
+
+
+            <p>
+
+                Diese Webseite dokumentiert meine
+                Projekte, meinen technischen
+                Hintergrund und meinen bisherigen
+                Weg.
+
+            </p>
+
+        </div>
+
+
+        <div class="facts">
+
+            <div class="fact">
+
+                <span>01</span>
+
+                <div>
+                    <small>STUDY</small>
+                    <strong>Electrical Engineering</strong>
+                    <p>ETH Zürich</p>
+                </div>
+
+            </div>
+
+
+            <div class="fact">
+
+                <span>02</span>
+
+                <div>
+                    <small>INTERESTS</small>
+                    <strong>Robotics</strong>
+                    <p>Embedded · Control · Electronics</p>
+                </div>
+
+            </div>
+
+
+            <div class="fact">
+
+                <span>03</span>
+
+                <div>
+                    <small>LOCATION</small>
+                    <strong>Zürich, Switzerland</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================================
+     PROJECTS
+========================================= -->
+
+<section id="projects" class="section projects-section">
+
+    <div class="section-header">
+
+        <span class="section-number">
+            02
+        </span>
+
+        <h2>Projects</h2>
+
+    </div>
+
+
+    <p class="section-description">
+
+        Eine Auswahl meiner technischen Projekte.
+        Klicke auf ein Projekt, um mehr darüber zu erfahren.
+
+    </p>
+
+
+    <div class="projects-grid">
+
+
+        <!-- PROJECT 01 -->
+
+        <article class="project">
+
+            <div class="project-image">
+
+                <img
+                    src="bilder/projekt1.jpg"
+                    alt="Projekt 1"
+                >
+
+                <span class="project-id">
+                    001
+                </span>
+
+            </div>
+
+
+            <div class="project-body">
+
+                <div class="project-top">
+
+                    <span>
+                        2026
+                    </span>
+
+                    <span>
+                        PERSONAL PROJECT
+                    </span>
+
+                </div>
+
+
+                <h3>
+                    NAME DEINES PROJEKTS
+                </h3>
+
+
+                <p>
+
+                    Kurze Beschreibung des Projekts.
+                    Beschreibe hier vor allem das Problem,
+                    das du lösen wolltest, und was du
+                    tatsächlich gebaut hast.
+
+                </p>
+
+
+                <div class="technologies">
+
+                    <span>Python</span>
+                    <span>Arduino</span>
+                    <span>CAD</span>
+
+                </div>
+
+
+                <a
+                    href="https://github.com/DEINNAME/PROJEKT"
+                    target="_blank"
+                    class="project-link"
+                >
+
+                    GitHub
+                    <span>↗</span>
+
+                </a>
+
+            </div>
+
+        </article>
+
+
+
+        <!-- PROJECT 02 -->
+
+        <article class="project">
+
+            <div class="project-image">
+
+                <img
+                    src="bilder/projekt2.jpg"
+                    alt="Projekt 2"
+                >
+
+                <span class="project-id">
+                    002
+                </span>
+
+            </div>
+
+
+            <div class="project-body">
+
+                <div class="project-top">
+
+                    <span>
+                        2025
+                    </span>
+
+                    <span>
+                        UNIVERSITY
+                    </span>
+
+                </div>
+
+
+                <h3>
+                    NAME DEINES PROJEKTS
+                </h3>
+
+
+                <p>
+
+                    Beschreibung deines Projekts.
+                    Erkläre kurz deine Rolle und welche
+                    technischen Herausforderungen du
+                    gelöst hast.
+
+                </p>
+
+
+                <div class="technologies">
+
+                    <span>C++</span>
+                    <span>Embedded</span>
+                    <span>Electronics</span>
+
+                </div>
+
+
+                <a
+                    href="https://github.com/DEINNAME/PROJEKT"
+                    target="_blank"
+                    class="project-link"
+                >
+
+                    GitHub
+                    <span>↗</span>
+
+                </a>
+
+            </div>
+
+        </article>
+
+
+
+        <!-- PROJECT 03 -->
+
+        <article class="project">
+
+            <div class="project-image">
+
+                <img
+                    src="bilder/projekt3.jpg"
+                    alt="Projekt 3"
+                >
+
+                <span class="project-id">
+                    003
+                </span>
+
+            </div>
+
+
+            <div class="project-body">
+
+                <div class="project-top">
+
+                    <span>
+                        2025
+                    </span>
+
+                    <span>
+                        PERSONAL PROJECT
+                    </span>
+
+                </div>
+
+
+                <h3>
+                    NAME DEINES PROJEKTS
+                </h3>
+
+
+                <p>
+
+                    Beschreibung deines dritten Projekts.
+                    Zeige hier möglichst ein Projekt,
+                    das deine technischen Fähigkeiten
+                    besonders gut demonstriert.
+
+                </p>
+
+
+                <div class="technologies">
+
+                    <span>MATLAB</span>
+                    <span>Control</span>
+                    <span>Robotics</span>
+
+                </div>
+
+
+                <a
+                    href="https://github.com/DEINNAME/PROJEKT"
+                    target="_blank"
+                    class="project-link"
+                >
+
+                    GitHub
+                    <span>↗</span>
+
+                </a>
+
+            </div>
+
+        </article>
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================================
+     TECHNICAL STACK
+========================================= -->
+
+<section class="section stack-section">
+
+    <div class="section-header">
+
+        <span class="section-number">
+            03
+        </span>
+
+        <h2>Technical stack</h2>
+
+    </div>
+
+
+    <div class="stack-grid">
+
+
+        <div class="stack-category">
+
+            <span>01</span>
+
+            <h3>Programming</h3>
+
+            <p>
+                Python · C · C++ · MATLAB
+            </p>
+
+        </div>
+
+
+        <div class="stack-category">
+
+            <span>02</span>
+
+            <h3>Hardware</h3>
+
+            <p>
+                Microcontrollers · Sensors ·
+                Electronics · PCB
+            </p>
+
+        </div>
+
+
+        <div class="stack-category">
+
+            <span>03</span>
+
+            <h3>Engineering</h3>
+
+            <p>
+                Control Systems · Signal Processing ·
+                CAD · Robotics
+            </p>
+
+        </div>
+
+
+        <div class="stack-category">
+
+            <span>04</span>
+
+            <h3>Tools</h3>
+
+            <p>
+                Git · GitHub · Linux ·
+                MATLAB · SolidWorks
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================================
+     CV
+========================================= -->
+
+<section id="cv" class="section cv-section">
+
+    <div class="section-header">
+
+        <span class="section-number">
+            04
+        </span>
+
+        <h2>Curriculum Vitae</h2>
+
+    </div>
+
+
+    <div class="cv-grid">
+
+        <div>
+
+            <p class="large-text">
+
+                Mein bisheriger Weg.
+
+            </p>
+
+            <p>
+
+                Eine detaillierte Übersicht meiner
+                Ausbildung, Erfahrungen und
+                technischen Kenntnisse findest du
+                in meinem vollständigen Lebenslauf.
+
+            </p>
+
+            <a
+                href="lebenslauf.pdf"
+                target="_blank"
+                class="button"
+            >
+
+                Open CV ↗
+
+            </a>
+
+        </div>
+
+
+        <div class="education">
+
+            <div class="education-item">
+
+                <span>
+                    2024 — heute
+                </span>
+
+                <div>
+
+                    <h3>
+                        BSc Electrical Engineering
+                    </h3>
+
+                    <p>
+                        ETH Zürich
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="education-item">
+
+                <span>
+                    20XX — 20XX
+                </span>
+
+                <div>
+
+                    <h3>
+                        Matura / Gymnasium
+                    </h3>
+
+                    <p>
+                        NAME DER SCHULE
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================================
+     CONTACT
+========================================= -->
+
+<section id="contact" class="contact-section">
+
+    <div class="contact-container">
+
+        <span class="section-number">
+            05
+        </span>
+
+        <h2>
+            Let's build<br>
+            something.
+        </h2>
+
+        <p>
+
+            Du möchtest mehr über meine Projekte
+            erfahren oder dich mit mir austauschen?
+
+        </p>
+
+
+        <a
+            href="mailto:DEINE-EMAIL@ethz.ch"
+            class="contact-email"
+        >
+
+            DEINE-EMAIL@ethz.ch
+            ↗
+
+        </a>
+
+    </div>
+
+</section>
+
+</main>
+
+
+
+<!-- =========================================
+     FOOTER
+========================================= -->
+
+<footer>
+
+    <div>
+        © 2026 DEIN NAME
+    </div>
+
+
+    <div class="footer-links">
+
+        <a
+            href="https://github.com/DEINNAME"
+            target="_blank"
+        >
+            GitHub
+        </a>
+
+        <a href="#home">
+            Back to top ↑
+        </a>
+
+    </div>
+
+</footer>
+
 
 </body>
 </html>
-```
