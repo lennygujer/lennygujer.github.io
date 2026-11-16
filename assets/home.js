@@ -56,24 +56,25 @@ U.zoom0 = U.menu0 + .35;               // Kacheln fahren ein
 U.zoom1 = U.zoom0 + 1.3;
 U.end = U.zoom1 + .35;
 
-/* Was das Modell je Etappe zeigt: a = Pose der Etappe, b = Bewegung innerhalb der Etappe (z.B. Gestell fährt hoch),
-   hi = gefüllte Bauteile, lab = Beschriftungen. */
-const ALL = [T.shaft, T.hub, T.iron, T.magN, T.magS, T.epoxy, T.coil, T.l1, T.l2, T.l3];
+/* Was das Modell je Etappe zeigt: a = Pose der Etappe, b = Bewegung innerhalb der Etappe (z.B. Gehäuse schliesst sich),
+   hi = gefüllte Bauteile, lab = Beschriftungen. open: 1 = ohne Gehäuse Süd, 2 = auch ohne Rotor Süd, 3 = auch ohne Stator-Deckel. */
+const HOUSE = [T.hNB, T.hNL, T.hSB, T.hSL, T.bolt];
+const ALL = [T.wheel, T.hw, T.rotN, T.rotS, T.statB, T.statL, ...HOUSE];
 const FOCUS = {
-  all:      { a: { yaw: 54, pitch: 12, roll: 6, e: 0, s: 1.16, oy: -.05, w: 1.3 }, hi: ALL, amt: .94, lab: [] },
-  stator:   { a: { yaw: 44, pitch: 14, roll: 8, e: .5, s: 1.12, ox: .17, oy: -.03, open: 1, w: .1 }, hi: [T.epoxy, T.coil], amt: .95, lab: ["coil", "epoxy", "leads"] },
-  iron:     { a: { yaw: 25, pitch: 18, roll: 12, e: .8, s: .86, ox: .13, w: .1 }, hi: [T.iron], amt: .95, lab: ["iron", "mag"] },
-  frame:    { a: { yaw: 46, pitch: 16, roll: 0, e: 0, s: .8, ox: .15, oy: -.13, f: 0, w: .2 }, b: { yaw: 38, f: 1 }, hi: [T.frame], amt: .95, lab: ["frame"] },
-  assembly: { a: { yaw: 34, pitch: 16, roll: 0, e: .3, s: .8, ox: .15, oy: -.13, f: 1, w: .2 }, b: { yaw: 44, e: 0 }, hi: [...ALL, T.frame], amt: .34, lab: [] },
-  test:     { a: { yaw: 40, pitch: 14, roll: 0, e: .2, s: .8, ox: .15, oy: -.13, f: 1, w: 2.6 }, hi: [], amt: 1, lab: ["leads", "coil", "mag"] }
+  all:      { a: { yaw: 52, pitch: 12, roll: 5, e: 0, s: 1.02, oy: -.02, w: 1.3 }, hi: ALL, amt: .94, lab: [] },
+  stator:   { a: { yaw: 46, pitch: 14, roll: 6, e: .45, s: 1.0, ox: .17, open: 3, w: .1 }, hi: [T.statB], amt: .95, lab: ["stator"] },
+  iron:     { a: { yaw: 25, pitch: 18, roll: 12, e: .8, s: .72, ox: .13, w: .1 }, hi: [T.rotN, T.rotS], amt: .95, lab: ["rotN", "rotS"] },
+  frame:    { a: { yaw: 40, pitch: 16, roll: 6, e: 0, s: .74, ox: .15, f: 0, w: .2 }, b: { yaw: 34, f: 1, s: .9 }, hi: HOUSE, amt: .95, lab: ["hN", "lidN", "hS"] },
+  assembly: { a: { yaw: 30, pitch: 16, roll: 6, e: .3, s: .82, ox: .15, w: .2 }, b: { yaw: 44, e: 0, s: .98 }, hi: ALL, amt: .34, lab: [] },
+  test:     { a: { yaw: 44, pitch: 14, roll: 4, e: .16, s: .95, ox: .16, open: 1, w: 2.6 }, hi: [], amt: 1, lab: ["rotS", "stator"] }
 };
 const focusOf = k => FOCUS[G.stages[k].focus] || FOCUS.all;
 
-const BASE = { yaw: 40, pitch: 12, roll: 0, e: 0, s: 1, ox: .16, oy: 0, f: 0, w: .3, open: 0 };
+const BASE = { yaw: 40, pitch: 12, roll: 0, e: 0, s: 1, ox: .16, oy: 0, f: 1, w: .3, open: 0 };
 const keys = [];
 const K = (u, o) => keys.push({ ...BASE, ...o, u });
-const INTRO = { yaw: 42, pitch: 12, roll: 8, e: .2, s: 1.3, ox: .24, w: .7 };
-const OVER = { yaw: 28, pitch: 16, roll: 13, e: 1, s: .82, ox: .13, oy: -.02, w: .12 };
+const INTRO = { yaw: 42, pitch: 12, roll: 8, e: .2, s: 1.1, ox: .24, w: .7 };
+const OVER = { yaw: 28, pitch: 16, roll: 13, e: 1, s: .63, ox: .2, oy: -.02, w: .12 };
 K(0, INTRO);
 K(U.wipe0, INTRO);
 K(U.ov0, OVER);
@@ -84,7 +85,7 @@ G.stages.forEach((st, k) => {
   if (F.b) K(t + TRANS.stage + .35, { ...F.a, ...F.b });
   K(t + U.sp, { ...F.a, ...(F.b || {}) });
 });
-const MENU = { yaw: 90, pitch: 0, roll: 0, e: 0, s: 1.15, ox: 0, oy: 0, f: 0, open: 1, w: .45 };
+const MENU = { yaw: 90, pitch: 0, roll: 0, e: 0, s: 1.0, ox: 0, oy: 0, open: 3, w: .45 };
 K(U.menu0 + .35, MENU);
 K(U.end + 1, MENU);
 const PROPS = Object.keys(BASE);
@@ -96,18 +97,19 @@ function pose(u, out) {
   return out;
 }
 
-/* Beschriftungen: side "rt" = oben rechts, "lb" = unten links. Reihenfolge = Zeilen von oben nach unten. */
+/* Beschriftungen: side "rt" = oben rechts, "lb" = unten links. Reihenfolge = Zeilen von oben nach unten.
+   at = [Bauteil, y, z, x]: Punkt am Bauteil, an dem die Linie endet (Modell-Einheiten, x entlang der Achse). */
 const LABELS = [
-  { key: "mag",   side: "rt", text: `${G.magnets} magnets`,  types: [T.magN, T.magS], at: ["magsB", .96, 0, -.04] },
-  { key: "iron",  side: "rt", text: "back iron",             types: [T.iron],         at: ["ironB", 1, 0, 0] },
-  { key: "frame", side: "rt", text: "frame (planned)",       types: [T.frame],        at: ["frame", .2, 0, 1.3] },
-  { key: "leads", side: "lb", text: "phase leads L1 L2 L3",  types: [T.l1, T.l2, T.l3], at: ["epoxy", -1.62, 0, .6] },
-  { key: "epoxy", side: "lb", text: "epoxy stator",          types: [T.epoxy],        at: ["epoxy", -1.02, .25, -.05] },
-  { key: "coil",  side: "lb", text: `${G.coils} coils`,      types: [T.coil],         at: ["coils", -.7, .26, -.08] },
-  { key: "hub",   side: "lb", text: "hub",                   types: [T.hub],          at: ["hubA", -.3, 0, -.03] },
-  { key: "shaft", side: "lb", text: "shaft",                 types: [T.shaft],        at: ["shaft", 0, 0, -1.48] }
+  { key: "stator", side: "rt", text: "stator",          types: [T.statB, T.statL], at: ["statorBody", 1.19, 0, .05] },
+  { key: "rotN",   side: "rt", text: "rotor north",     types: [T.rotN],           at: ["rotorN", 1, 0, .2] },
+  { key: "hN",     side: "rt", text: "housing north",   types: [T.hNB],            at: ["housNB", 1.19, 0, .23] },
+  { key: "lidN",   side: "rt", text: "housing lid",     types: [T.hNL],            at: ["housNL", 1.19, 0, .37] },
+  { key: "wheel",  side: "lb", text: "shaft wheel",     types: [T.wheel, T.hw],    at: ["wheel", -.34, 0, 0] },
+  { key: "rotS",   side: "lb", text: "rotor south",     types: [T.rotS],           at: ["rotorS", -1, 0, -.12] },
+  { key: "hS",     side: "lb", text: "housing south",   types: [T.hSB, T.hSL],     at: ["housSB", -1.19, .5, -.23] },
+  { key: "bolt",   side: "lb", text: "M6 bolts",        types: [T.bolt],           at: ["boltsM6", -.625, 1.08, -.45] }
 ];
-const OV_LABELS = ["mag", "iron", "hub", "leads", "epoxy", "coil", "shaft"];
+const OV_LABELS = LABELS.map(L => L.key);
 
 const pin = $("#pin"), track = $("#home"), nav = $("#nav");
 const elIntro = $("#intro"), elHint = $("#hint"), elOv = $("#ov");
@@ -141,7 +143,7 @@ let gen = null;
 try {
   if (new URLSearchParams(location.search).has("nogl")) throw new Error("3D switched off by ?nogl");
   const mod = await import("./generator3d.js");
-  gen = mod.createGenerator($("#gl"), { magnets: G.magnets, coils: G.coils });
+  gen = await mod.createGenerator($("#gl"));
 } catch (err) {
   console.warn("3D generator unavailable:", err);
   document.documentElement.classList.add("no-gl");
@@ -246,9 +248,9 @@ function frame(now) {
     elMenu.style.transform = `translate(${tx}px,${ty}px) scale(${gs})`;
     elMenu.style.setProperty("--ho", seg(z, .4, .8));
     const hx = menuO.x + tx, hy = menuO.y + ty, hh = menuO.h * gs;
-    const fit = .76 * hh / (2.9 * gen.view.ppu);
+    const fit = .78 * hh / (2.56 * gen.view.ppu);
     s = Math.min(P.s, fit);
-    cx = lerp(cx, hx + menuO.w * gs * .2 * z, mBlend); cy = lerp(cy, hy - .18 * s * gen.view.ppu + hh * .02, mBlend);
+    cx = lerp(cx, hx + menuO.w * gs * .2 * z, mBlend); cy = lerp(cy, hy + .075 * s * gen.view.ppu + hh * .02, mBlend);
   }
 
   /* Bauteil-Farben */
@@ -256,16 +258,15 @@ function frame(now) {
   let show = [];
   if (card >= 0 && us < U.stEnd + .02) {
     const F = focusOf(card), st = G.stages[card], c = COL[st.status] || COL.planned;
-    F.hi.forEach(t => setT(t, t === T.coil && F.hi.length < 4 ? COL.copper : c, F.amt));
+    F.hi.forEach(t => setT(t, c, F.amt));
     if (st.focus === "test") {
-      setT(T.l1, COL.l1, 1); setT(T.l2, COL.l2, 1); setT(T.l3, COL.l3, 1);
-      setT(T.coil, COL.copper, .95); setT(T.magN, COL.red, .9); setT(T.magS, COL.blue, .9);
+      setT(T.rotN, COL.red, .9); setT(T.rotS, COL.blue, .9);
+      setT(T.statB, COL.copper, .95); setT(T.statL, COL.copper, .95);
     }
     show = F.lab;
   } else if (ovA > .5) show = OV_LABELS;
   if (hover && show.includes(hover.key)) {
-    if (hover.key === "mag") { setT(T.magN, COL.red, .92); setT(T.magS, COL.blue, .92); }
-    else hover.types.forEach(t => setT(t, t === T.coil ? COL.copper : COL.active, .95));
+    hover.types.forEach(t => setT(t, COL.active, .95));
   }
   const kf = Math.min(1, dt * 9);
   for (let i = 0; i < TYPES; i++) {
@@ -279,7 +280,7 @@ function frame(now) {
   const par = 1 - mBlend, sway = reduced ? 0 : par;
   gen.render({
     yaw: P.yaw + pmx * 9 * par + Math.sin(now * .00045) * 2.5 * sway, pitch: P.pitch + pmy * 6 * par + Math.cos(now * .00033) * 1.2 * sway, roll: P.roll, e: P.e,
-    f: P.f * (1 - seg(us, U.stEnd - .03, U.menu0 + .1)), open: P.open,
+    f: P.f, open: P.open,
     spin, s, cx, cy, wipe, pal
   });
 

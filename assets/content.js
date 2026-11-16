@@ -17,9 +17,9 @@ window.SITE = {
     summary: "A self-built generator in which permanent magnets rotate past a stator of copper coils. Version 1 showed what needed to change. Version 2 is being built right now.",
     repo:    "https://github.com/lennygujer",          // ← Link zum Generator-Repository eintragen
 
-    /* Aufbau des 3D-Modells. Später an den echten Generator anpassen. */
+    /* Das 3D-Modell ist Version 1 aus Fusion (assets/model/). Diese Zahlen werden zurzeit nicht angezeigt. */
     magnets: 12,                                       // Anzahl Magnete pro Rotor
-    coils:   9,                                        // Anzahl Spulen im Stator (Vielfaches von 3)
+    coils:   9,                                        // Anzahl Spulen im Stator
 
     /* Kennzahlen unter der Einleitung. "tbd" ersetzen, sobald die Werte feststehen. */
     specs: [

@@ -1,5 +1,7 @@
 /* =====================================================================
-   3D-Modell des Axialfluss-Generators (three.js).
+   3D-Modell des Axialfluss-Generators Version 1 (three.js).
+   Die Bauteile stammen aus dem Fusion-Modell und liegen als Netze in assets/model/v1.bin
+   (Verzeichnis dazu: assets/model/v1.json; 1 Einheit = 8 cm, Rotor-Radius = 1).
    Zwei Darstellungen, die per «wipe» ineinander übergehen:
    - beleuchtetes Modell auf dunklem Grund
    - Strichzeichnung auf Papier (Kanten aus Normalen und Bauteil-IDs)
@@ -10,69 +12,6 @@ import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { T, TYPES } from "./parts.js";
 
 const DEG = Math.PI / 180;
-
-/* ---------- Geometrie-Helfer ---------- */
-
-/* Rotationskörper um die x-Achse. profile = geschlossenes Polygon aus [x, r].
-   Jede Kante bekommt eigene Eckpunkte, damit die Kanten scharf bleiben. */
-function lathe(profile, seg = 96) {
-  const pos = [], nor = [], idx = [];
-  const n = profile.length;
-  let area = 0;
-  for (let i = 0; i < n; i++) { const a = profile[i], b = profile[(i + 1) % n]; area += a[0] * b[1] - b[0] * a[1]; }
-  const sg = area > 0 ? 1 : -1;
-  for (let i = 0; i < n; i++) {
-    const [x1, r1] = profile[i], [x2, r2] = profile[(i + 1) % n];
-    if (r1 < 1e-6 && r2 < 1e-6) continue;
-    const dx = x2 - x1, dr = r2 - r1, l = Math.hypot(dx, dr);
-    if (l < 1e-9) continue;
-    const nx = sg * dr / l, nr = -sg * dx / l;
-    const base = pos.length / 3;
-    for (let j = 0; j <= seg; j++) {
-      const a = j / seg * Math.PI * 2, c = Math.cos(a), s = Math.sin(a);
-      pos.push(x1, r1 * c, r1 * s, x2, r2 * c, r2 * s);
-      nor.push(nx, nr * c, nr * s, nx, nr * c, nr * s);
-    }
-    for (let j = 0; j < seg; j++) { const a = base + j * 2; idx.push(a, a + 1, a + 3, a, a + 3, a + 2); }
-  }
-  for (let t = 0; t < idx.length; t += 3) {
-    const a = idx[t] * 3, b = idx[t + 1] * 3, c = idx[t + 2] * 3;
-    const ux = pos[b] - pos[a], uy = pos[b + 1] - pos[a + 1], uz = pos[b + 2] - pos[a + 2];
-    const vx = pos[c] - pos[a], vy = pos[c + 1] - pos[a + 1], vz = pos[c + 2] - pos[a + 2];
-    const cx = uy * vz - uz * vy, cy = uz * vx - ux * vz, cz = ux * vy - uy * vx;
-    const d = cx * (nor[a] + nor[b] + nor[c]) + cy * (nor[a + 1] + nor[b + 1] + nor[c + 1]) + cz * (nor[a + 2] + nor[b + 2] + nor[c + 2]);
-    if (d < 0) { const tmp = idx[t + 1]; idx[t + 1] = idx[t + 2]; idx[t + 2] = tmp; }
-  }
-  const g = new THREE.BufferGeometry();
-  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
-  g.setAttribute("normal", new THREE.Float32BufferAttribute(nor, 3));
-  g.setIndex(idx);
-  return g;
-}
-const ring = (r0, r1, x0, x1, ch = 0, seg = 96) =>
-  lathe([[x0, r0], [x0, r1 - ch], [x0 + ch, r1], [x1 - ch, r1], [x1, r1 - ch], [x1, r0]], seg);
-const cyl = (r, x0, x1, seg = 20) => lathe([[x0, 0], [x0, r], [x1, r], [x1, 0]], seg);
-
-/* Form in der (y,z)-Ebene, extrudiert entlang x, um x = 0 zentriert. */
-const BASIS = new THREE.Matrix4().makeBasis(new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, 1), new THREE.Vector3(1, 0, 0));
-function extrude(shape, depth, curveSegments = 24) {
-  const g = new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled: false, curveSegments });
-  g.translate(0, 0, -depth / 2);
-  g.applyMatrix4(BASIS);
-  return g;
-}
-/* Ringsektor: aussen r1 mit Halbwinkel h1, innen r0 mit Halbwinkel h0. */
-function sector(r0, h0, r1, h1, n = 12) {
-  const p = [];
-  for (let i = 0; i <= n; i++) { const a = -h1 + 2 * h1 * i / n; p.push(new THREE.Vector2(r1 * Math.cos(a), r1 * Math.sin(a))); }
-  for (let i = n; i >= 0; i--) { const a = -h0 + 2 * h0 * i / n; p.push(new THREE.Vector2(r0 * Math.cos(a), r0 * Math.sin(a))); }
-  return p;
-}
-function circle(cx, cy, r, n = 28) {
-  const p = [];
-  for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2; p.push(new THREE.Vector2(cx + r * Math.cos(a), cy + r * Math.sin(a))); }
-  return p;
-}
 
 /* ---------- Shader ---------- */
 const QUAD_VS = "varying vec2 vUv; void main(){ vUv = position.xy*.5+.5; gl_Position = vec4(position.xy,0.,1.); }";
@@ -129,7 +68,31 @@ void main(){
 }`;
 
 /* ---------- Generator ---------- */
-export function createGenerator(canvas, { magnets = 12, coils = 9 } = {}) {
+/* Bauteile: Typ (Farbindex), Material, ex = Weg entlang der Achse in der Explosionsansicht,
+   spin = dreht mit der Welle, hide = Stufe, ab der das Teil für den Blick ins Innere weggeblendet wird
+   (1 = Gehäuse Süd und M6-Schrauben, 2 = Rotor Süd, 3 = Stator-Deckel), house = gehört zum Gehäuse. */
+const PARTS = {
+  wheel:      { type: T.wheel, mat: "steel",  ex: 0,     spin: true },
+  screwsM3:   { type: T.hw,    mat: "steel",  ex: 0,     spin: true },
+  nutsM25:    { type: T.hw,    mat: "steel",  ex: -.45,  spin: true, hide: 2 },
+  rotorN:     { type: T.rotN,  mat: "rotor",  ex: 1.15,  spin: true },
+  rotorS:     { type: T.rotS,  mat: "rotor",  ex: -1.15, spin: true, hide: 2 },
+  statorBody: { type: T.statB, mat: "stator", ex: .34 },
+  statorLid:  { type: T.statL, mat: "stator", ex: -.34,  hide: 3 },
+  housNB:     { type: T.hNB,   mat: "house",  ex: 1.8,   house: 1 },
+  housNL:     { type: T.hNL,   mat: "lid",    ex: 2.3,   house: 1 },
+  housSB:     { type: T.hSB,   mat: "house",  ex: -1.8,  house: -1, hide: 1 },
+  housSL:     { type: T.hSL,   mat: "lid",    ex: -2.3,  house: -1, hide: 1 },
+  boltsM6:    { type: T.bolt,  mat: "steel",  ex: -2.75, house: -1, hide: 1 },
+  washersM6:  { type: T.bolt,  mat: "steel",  ex: 2.55,  house: 1,  hide: 1 },
+  nutsM6:     { type: T.bolt,  mat: "steel",  ex: 2.68,  house: 1,  hide: 1 }
+};
+
+export async function createGenerator(canvas) {
+  const [manifest, buf] = await Promise.all([
+    fetch(new URL("./model/v1.json", import.meta.url)).then(r => { if (!r.ok) throw new Error("model manifest missing"); return r.json(); }),
+    fetch(new URL("./model/v1.bin", import.meta.url)).then(r => { if (!r.ok) throw new Error("model data missing"); return r.arrayBuffer(); })
+  ]);
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: "high-performance" });
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.1;
@@ -150,15 +113,11 @@ export function createGenerator(canvas, { magnets = 12, coils = 9 } = {}) {
   const low = new THREE.DirectionalLight(0xff8a4a, 1.3); low.position.set(-2, -6, 3); scene.add(low);
 
   const MAT = {
-    steel:  new THREE.MeshStandardMaterial({ color: 0xa3a6ab, metalness: .95, roughness: .3 }),
-    iron:   new THREE.MeshStandardMaterial({ color: 0x70747a, metalness: .92, roughness: .38 }),
-    magnet: new THREE.MeshStandardMaterial({ color: 0xdfe2e6, metalness: 1, roughness: .16 }),
-    copper: new THREE.MeshStandardMaterial({ color: 0xe0823f, metalness: 1, roughness: .3 }),
-    epoxy:  new THREE.MeshStandardMaterial({ color: 0x1a2622, metalness: 0, roughness: .22 }),
-    l1:     new THREE.MeshStandardMaterial({ color: 0x9a5f33, metalness: 0, roughness: .55 }),
-    l2:     new THREE.MeshStandardMaterial({ color: 0x151515, metalness: 0, roughness: .5 }),
-    l3:     new THREE.MeshStandardMaterial({ color: 0x9aa2ac, metalness: 0, roughness: .55 }),
-    frame:  new THREE.MeshStandardMaterial({ color: 0xb4b7bb, metalness: .85, roughness: .5 })
+    steel:  new THREE.MeshStandardMaterial({ color: 0xb0b3b8, metalness: .95, roughness: .3 }),
+    rotor:  new THREE.MeshStandardMaterial({ color: 0xc4c7cb, metalness: .35, roughness: .42 }),
+    stator: new THREE.MeshStandardMaterial({ color: 0xd9772f, metalness: .45, roughness: .4 }),
+    house:  new THREE.MeshStandardMaterial({ color: 0x2c2f33, metalness: .3, roughness: .5 }),
+    lid:    new THREE.MeshStandardMaterial({ color: 0x3a3e43, metalness: .3, roughness: .45 })
   };
   const dataBase = new THREE.ShaderMaterial({ uniforms: { uId: { value: 0 } }, vertexShader: DATA_VS, fragmentShader: DATA_FS });
 
@@ -173,85 +132,24 @@ export function createGenerator(canvas, { magnets = 12, coils = 9 } = {}) {
     parent.add(m); meshes.push(m);
     return m;
   }
-  function part(name, base, ex, spin = false) {
+  /* Netze laden. Die flache Standfläche des Gehäuses liegt unten (-y), die Lasche mit der fünften Schraube oben. */
+  for (const e of manifest.parts) {
+    const cfg = PARTS[e.name];
+    if (!cfg) continue;
+    const pos = new Float32Array(buf, e.pos, e.verts * 3).slice();
+    const nq = new Int8Array(buf, e.nor, e.verts * 3), nor = new Float32Array(e.verts * 3);
+    for (let i = 0; i < e.verts * 3; i++) nor[i] = nq[i] / 127;
+    const idx = e.idx32 ? new Uint32Array(buf, e.idx, e.tris * 3).slice() : new Uint16Array(buf, e.idx, e.tris * 3).slice();
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute("normal", new THREE.BufferAttribute(nor, 3));
+    geo.setIndex(new THREE.BufferAttribute(idx, 1));
     const g = new THREE.Group();
-    g.userData = { base, ex, spin };
-    root.add(g); parts[name] = g;
-    return g;
+    g.userData = cfg;
+    root.add(g); parts[e.name] = g;
+    mk(geo, cfg.mat, cfg.type, g);
   }
-
-  /* Welle */
-  const SH = 1.48;
-  mk(lathe([[-SH, 0], [-SH, .052], [-SH + .03, .07], [SH - .03, .07], [SH, .052], [SH, 0]], 40), "steel", T.shaft, part("shaft", 0, 0, true));
-
-  /* Rotoren: Nabe, Rückschluss, Magnete (Seite A bei -x, Seite B bei +x) */
-  const hubGeo = lathe([[0, .07], [0, .3], [.05, .3], [.05, .16], [.19, .16], [.19, .07]], 64);
-  const boltGeo = cyl(.03, .05, .085, 6);
-  const ironGeo = lathe([[-.03, .12], [-.03, .988], [-.018, 1], [.018, 1], [.03, .988], [.03, .64], [.02, .62], [.02, .38], [.03, .36], [.03, .12]]);
-  const magGeo = extrude(new THREE.Shape(sector(.56, .7 * Math.PI / magnets, .96, .7 * Math.PI / magnets)), .08);
-  for (const side of [-1, 1]) {
-    const tag = side < 0 ? "A" : "B";
-    const hub = part("hub" + tag, side * .25, side * 2.5, true);
-    const flip = new THREE.Group(); if (side < 0) flip.rotation.y = Math.PI; hub.add(flip);
-    mk(hubGeo, "steel", T.hub, flip);
-    for (let k = 0; k < 6; k++) {
-      const b = mk(boltGeo, "steel", T.hub, flip), a = k / 6 * Math.PI * 2;
-      b.position.set(0, .23 * Math.cos(a), .23 * Math.sin(a));
-    }
-    const iron = part("iron" + tag, side * .22, side * 1.85, true);
-    const iflip = new THREE.Group(); if (side < 0) iflip.rotation.y = Math.PI; iron.add(iflip);
-    mk(ironGeo, "iron", T.iron, iflip);
-    const mags = part("mags" + tag, side * .15, side * 1.12, true);
-    for (let k = 0; k < magnets; k++) {
-      const even = (k % 2 === 0) === (side > 0);
-      mk(magGeo, "magnet", even ? T.magN : T.magS, mags).rotation.x = k / magnets * Math.PI * 2;
-    }
-  }
-
-  /* Stator: Epoxid-Scheibe mit Befestigungslaschen, Spulen, drei Phasenleiter */
-  const LUG = [90, 210, 330].map(d => d * DEG), LM = 1.13, LR = .135;
-  const outline = [];
-  for (let i = 0; i < 360; i++) {
-    const a = i / 360 * Math.PI * 2;
-    let r = 1.08;
-    for (const c of LUG) {
-      const d = a - c, s = LM * Math.sin(d), q = LR * LR - s * s;
-      if (q > 0 && Math.cos(d) > 0) r = Math.max(r, LM * Math.cos(d) + Math.sqrt(q));
-    }
-    outline.push(new THREE.Vector2(r * Math.cos(a), r * Math.sin(a)));
-  }
-  const disc = new THREE.Shape(outline);
-  disc.holes.push(new THREE.Path(circle(0, 0, .3, 64)));
-  for (const c of LUG) disc.holes.push(new THREE.Path(circle(LM * Math.cos(c), LM * Math.sin(c), .045, 20)));
-  const epoxy = part("epoxy", 0, .36);
-  mk(extrude(disc, .1), "epoxy", T.epoxy, epoxy);
-  [[T.l1, "l1", -.08], [T.l2, "l2", 0], [T.l3, "l3", .08]].forEach(([type, mat, z], i) => {
-    const curve = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(0, -1.04, z), new THREE.Vector3(0, -1.3, z), new THREE.Vector3(.07, -1.5, z),
-      new THREE.Vector3(.28, -1.6 - i * .012, z), new THREE.Vector3(.62, -1.62 - i * .012, z)]);
-    mk(new THREE.TubeGeometry(curve, 48, .024, 10), mat, type, epoxy);
-  });
-
-  const pitch = Math.PI * 2 / coils, hc = pitch / 2 - 3 * DEG, cw = .13;
-  const coilShape = new THREE.Shape(sector(.5, hc, .98, hc, 14));
-  coilShape.holes.push(new THREE.Path(sector(.5 + cw, Math.max(.02, hc - cw / (.5 + cw)), .98 - cw, Math.max(.04, hc - cw / (.98 - cw)), 10)));
-  const coilGeo = extrude(coilShape, .16);
-  const coilG = part("coils", 0, -.36);
-  for (let k = 0; k < coils; k++) mk(coilGeo, "copper", T.coil, coilG).rotation.x = k * pitch;
-
-  /* Gestell (geplant): Grundplatte, zwei Lagerböcke */
-  const frame = part("frame", 0, 0);
-  const FX = 1.3;
-  mk(new THREE.BoxGeometry(FX * 2 + .5, .07, 1.15), "frame", T.frame, frame).position.y = -1.785;
-  const up = new THREE.Shape([
-    new THREE.Vector2(-1.75, -.46), new THREE.Vector2(-1.75, .46), new THREE.Vector2(-.02, .24),
-    new THREE.Vector2(.2, .16), new THREE.Vector2(.26, 0), new THREE.Vector2(.2, -.16), new THREE.Vector2(-.02, -.24)]);
-  up.holes.push(new THREE.Path(circle(0, 0, .1, 32)));
-  const upGeo = extrude(up, .07), bearGeo = ring(.072, .17, -.06, .06, .01, 48);
-  for (const side of [-1, 1]) {
-    mk(upGeo, "frame", T.frame, frame).position.x = side * FX;
-    mk(bearGeo, "steel", T.frame, frame).position.x = side * FX;
-  }
+  for (const name in PARTS) if (!parts[name]) throw new Error("model part missing: " + name);
 
   /* ---------- Durchgänge ---------- */
   const ortho = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
@@ -293,7 +191,8 @@ export function createGenerator(canvas, { magnets = 12, coils = 9 } = {}) {
   const AX = new THREE.Vector3(1, 0, 0), AY = new THREE.Vector3(0, 1, 0), AZ = new THREE.Vector3(0, 0, 1), v = new THREE.Vector3();
   const useMats = (k) => { for (const m of meshes) m.material = m.userData[k]; };
 
-  /* st: yaw, pitch, roll (Grad), e (Explosion 0..1), f (Gestell 0..1), open (Rotor A weg 0..1),
+  /* st: yaw, pitch, roll (Grad), e (Explosion 0..1), f (Gehäuse: 0 weit weg .. 1 an seinem Platz),
+         open (0 geschlossen, 1 ohne Gehäuse Süd, 2 ohne Rotor Süd, 3 ohne Stator-Deckel),
          spin (rad), s (Massstab), cx, cy (Bildschirm-Pixel), wipe (0 dunkel .. 1 Zeichnung), pal (Float32Array rgba je Typ) */
   function render(st) {
     qy.setFromAxisAngle(AY, st.yaw * DEG); qx.setFromAxisAngle(AX, st.pitch * DEG); qz.setFromAxisAngle(AZ, st.roll * DEG);
@@ -302,14 +201,11 @@ export function createGenerator(canvas, { magnets = 12, coils = 9 } = {}) {
     root.position.set((st.cx / view.w - .5) * 2 * view.halfW, -(st.cy / view.h - .5) * 2 * view.halfH, 0);
     for (const name in parts) {
       const g = parts[name], d = g.userData;
-      g.position.x = d.base + d.ex * st.e;
+      g.position.x = d.ex * st.e + (d.house ? d.house * (1 - st.f) * 2 : 0);
       if (d.spin) g.rotation.x = st.spin;
+      const k = d.hide ? Math.min(1, Math.max(0, d.hide - st.open)) : 1;
+      g.scale.set(1, k, k); g.visible = k > .02;
     }
-    const k = Math.max(0, 1 - st.open);
-    for (const name of ["hubA", "ironA", "magsA"]) { parts[name].scale.set(1, k, k); parts[name].visible = k > .02; }
-    frame.position.y = -(1 - st.f) * 1.5;
-    frame.scale.setScalar(.6 + .4 * st.f);
-    frame.visible = st.f > .01;
     root.updateMatrixWorld(true);
 
     const wipe = -.15 + 1.3 * st.wipe;
