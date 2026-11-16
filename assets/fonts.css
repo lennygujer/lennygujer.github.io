@@ -1,0 +1,8 @@
+/* Schrift «Behind The Nineties» (Casloop Studio), frei für persönliche Nutzung.
+   Die Dateien liegen in assets/fonts/. Der Browser lädt nur die Schnitte, die die Seite wirklich braucht. */
+@font-face{font-family:"Behind The Nineties";font-weight:400;font-style:normal;font-display:swap;src:url(fonts/Behind-The-Nineties-Rg.otf) format("opentype")}
+@font-face{font-family:"Behind The Nineties";font-weight:500;font-style:normal;font-display:swap;src:url(fonts/Behind-The-Nineties-Md.otf) format("opentype")}
+@font-face{font-family:"Behind The Nineties";font-weight:600;font-style:normal;font-display:swap;src:url(fonts/Behind-The-Nineties-Smbd.otf) format("opentype")}
+@font-face{font-family:"Behind The Nineties";font-weight:700;font-style:normal;font-display:swap;src:url(fonts/Behind-The-Nineties-Bd.otf) format("opentype")}
+@font-face{font-family:"Behind The Nineties";font-weight:800;font-style:normal;font-display:swap;src:url(fonts/Behind-The-Nineties-Xbd.otf) format("opentype")}
+@font-face{font-family:"Behind The Nineties";font-weight:900;font-style:normal;font-display:swap;src:url(fonts/Behind-The-Nineties-Blk.otf) format("opentype")}
