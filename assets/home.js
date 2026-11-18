@@ -115,7 +115,6 @@ const pin = $("#pin"), track = $("#home"), nav = $("#nav");
 const elIntro = $("#intro"), elHint = $("#hint"), elOv = $("#ov");
 const elMenu = $("#menu"), elHole = $(".t-hole"), elScope = $("#scope"), svg = $("#leaders"), labBox = $("#labels");
 const cards = $$(".card");
-track.style.height = (U.end + 1) * 100 + "vh";
 
 let hover = null;
 const SVGNS = "http://www.w3.org/2000/svg";
@@ -128,7 +127,15 @@ LABELS.forEach(L => {
 });
 
 let vh = innerHeight, vw = innerWidth, trackTop = 0, menuO = { x: 0, y: 0, w: 1, h: 1 }, sized = false;
-const goU = (u, instant) => window.scrollTo({ top: trackTop + u * vh, behavior: reduced || instant ? "instant" : "smooth" });
+/* su = Scroll-Weg pro Einheit. Er wird nur neu gesetzt, wenn sich die Breite ändert, damit das Ein- und Ausblenden
+   der Adressleiste auf dem Handy die Animation nicht springen lässt. */
+let su = innerHeight, lastW = 0;
+/* Hochformat (Handy, Tablet hochkant): Modell oben, Text unten, keine Beschriftungen.
+   Sehr breite Monitore: Die Komposition bleibt in einem Bereich von höchstens 2 : 1 in der Mitte. */
+const PORTRAIT = matchMedia("(max-width: 759px), (max-aspect-ratio: 9/10)");
+let portrait = PORTRAIT.matches, ew = vw, side = 0;
+const textBottom = { ov: 0, cards: [] };
+const goU = (u, instant) => window.scrollTo({ top: trackTop + u * su, behavior: reduced || instant ? "instant" : "smooth" });
 const stageAt = u => Math.floor((u - U.st0) / U.sp);
 $$("[data-go]").forEach(a => a.addEventListener("click", e => {
   e.preventDefault();
@@ -152,14 +159,23 @@ try {
 
 function measure() {
   vh = innerHeight; vw = innerWidth;
+  if (vw !== lastW) { su = vh; lastW = vw; }
+  portrait = PORTRAIT.matches;
+  ew = Math.min(vw, vh * 2);
+  side = portrait ? 0 : (vw - ew) / 2;
+  document.documentElement.style.setProperty("--side", side + "px");
   trackTop = track.getBoundingClientRect().top + scrollY;
   if (!gen) return;
+  track.style.height = (U.end + 1) * su + "px";
   gen.setSize(vw, vh);
   const tf = elMenu.style.transform; elMenu.style.transform = "none";
   menuO = { x: elHole.offsetLeft + elHole.offsetWidth / 2, y: elHole.offsetTop + elHole.offsetHeight / 2, w: elHole.offsetWidth, h: elHole.offsetHeight };
   elMenu.style.transformOrigin = `${menuO.x}px ${menuO.y}px`;
   elMenu.style.transform = tf;
   LABELS.forEach(L => { L.w = L.el.offsetWidth - 16; });
+  /* Unterkante der Textblöcke: Reichen die Beschriftungen unten links bis dorthin, wandern sie nach rechts. */
+  textBottom.ov = elOv.offsetTop + elOv.offsetHeight;
+  textBottom.cards = cards.map(c => c.parentElement.offsetTop + c.offsetTop + c.offsetHeight);
   const pr = Math.min(devicePixelRatio || 1, 2);
   elScope.width = elScope.clientWidth * pr; elScope.height = elScope.clientHeight * pr;
   sized = true;
@@ -205,8 +221,8 @@ function drawScope(phase) {
 function frame(now) {
   requestAnimationFrame(frame);
   const dt = Math.min(.05, (now - last) / 1000); last = now;
-  const y = scrollY, u = clamp((y - trackTop) / vh, 0, U.end);
-  const inView = y < trackTop + (U.end + 1) * vh;
+  const y = scrollY, u = clamp((y - trackTop) / su, 0, U.end);
+  const inView = y < trackTop + (U.end + 1) * su;
   /* Das Scrollen schiebt die Animation direkt; nur leicht geglättet. */
   us = reduced || !started || !inView ? u : us + (u - us) * Math.min(1, dt * 8);
   if (Math.abs(u - us) < .0004) us = u;
@@ -240,7 +256,14 @@ function frame(now) {
   elMenu.classList.toggle("on", menuOn);
   elMenu.classList.toggle("ready", z > .97);
   nav.classList.toggle("off", us > U.menu0);
-  let cx = vw * (.5 + P.ox), cy = vh * (.5 + P.oy), s = P.s;
+  /* Position und Grösse des Modells je nach Bildformat */
+  let cx, cy, s;
+  if (portrait) {
+    /* Die Explosionsansicht ist länger als der zusammengebaute Generator und wird deshalb kleiner gezeigt. */
+    cx = vw * .5; cy = vh * (.3 + P.oy * .5); s = P.s * clamp(vw / vh * 1.2, .45, .8) * (1 - .32 * P.e);
+  } else {
+    cx = vw / 2 + P.ox * ew; cy = vh * (.5 + P.oy); s = P.s * Math.min(1, vw / vh / 1.6);
+  }
   if (!gen || !sized) return;
   if (menuOn || mBlend > 0) {
     const g0 = Math.max(vw / menuO.w, vh / menuO.h) * 1.12, gs = lerp(g0, 1, z);
@@ -248,9 +271,11 @@ function frame(now) {
     elMenu.style.transform = `translate(${tx}px,${ty}px) scale(${gs})`;
     elMenu.style.setProperty("--ho", seg(z, .4, .8));
     const hx = menuO.x + tx, hy = menuO.y + ty, hh = menuO.h * gs;
-    const fit = .78 * hh / (2.56 * gen.view.ppu);
-    s = Math.min(P.s, fit);
-    cx = lerp(cx, hx + menuO.w * gs * .2 * z, mBlend); cy = lerp(cy, hy + .075 * s * gen.view.ppu + hh * .02, mBlend);
+    const hw = menuO.w * gs, room = portrait ? Math.min(hh * .82, hw * .92) : hh;
+    const fit = .78 * room / (2.56 * gen.view.ppu);
+    s = Math.min(s, fit);
+    cx = lerp(cx, hx + (portrait ? 0 : hw * .2 * z), mBlend);
+    cy = lerp(cy, hy + .075 * s * gen.view.ppu + hh * (portrait ? .1 : .02), mBlend);
   }
 
   /* Bauteil-Farben */
@@ -265,6 +290,7 @@ function frame(now) {
     }
     show = F.lab;
   } else if (ovA > .5) show = OV_LABELS;
+  if (portrait) show = [];
   if (hover && show.includes(hover.key)) {
     hover.types.forEach(t => setT(t, COL.active, .95));
   }
@@ -279,16 +305,19 @@ function frame(now) {
   pmx += (mx - pmx) * Math.min(1, dt * 4); pmy += (my - pmy) * Math.min(1, dt * 4);
   const par = 1 - mBlend, sway = reduced ? 0 : par;
   gen.render({
-    yaw: P.yaw + pmx * 9 * par + Math.sin(now * .00045) * 2.5 * sway, pitch: P.pitch + pmy * 6 * par + Math.cos(now * .00033) * 1.2 * sway, roll: P.roll, e: P.e,
+    yaw: P.yaw + pmx * 9 * par + Math.sin(now * .00045) * 2.5 * sway, pitch: P.pitch + pmy * 6 * par + Math.cos(now * .00033) * 1.2 * sway,
+    roll: P.roll + (portrait ? 30 * par : 0), e: P.e,
     f: P.f, open: P.open,
     spin, s, cx, cy, wipe, pal
   });
 
   /* Beschriftungen und Führungslinien */
-  const rows = { rt: 0, lb: 0 }, nLb = LABELS.filter(L => L.side === "lb").length;
-  const padX = vw * .04;
+  const rows = { rt: 0, lb: 0 }, nLb = LABELS.filter(L => L.side === "lb" && show.includes(L.key)).length;
+  const padX = side + vw * .04;
+  const tb = card >= 0 ? textBottom.cards[card] || 0 : textBottom.ov;
+  const lbRight = vh * .93 - (nLb - 1) * 28 < tb + 20;
   LABELS.forEach(L => {
-    const row = rows[L.side]++, on = show.includes(L.key), hi = hover === L && on;
+    const on = show.includes(L.key), row = on ? rows[L.side]++ : 0, hi = hover === L && on;
     L.el.classList.toggle("on", on); L.el.classList.toggle("hi", hi);
     L.path.classList.toggle("on", on); L.dot.classList.toggle("on", on); L.path.classList.toggle("hi", hi);
     if (!on) return;
@@ -297,6 +326,11 @@ function frame(now) {
     if (L.side === "rt") {
       ly = Math.max(104, vh * .13) + row * 28;
       const x0 = vw - padX - L.w - 12, ex = Math.min(x0 - 14, ax + (ay - ly));
+      d = `M${x0} ${ly}H${ex}L${ax} ${ay}`;
+      L.el.style.left = vw - padX - L.w + "px";
+    } else if (lbRight) {
+      ly = vh * .93 - (nLb - 1 - row) * 28;
+      const x0 = vw - padX - L.w - 12, ex = Math.min(x0 - 14, ax + (ly - ay));
       d = `M${x0} ${ly}H${ex}L${ax} ${ay}`;
       L.el.style.left = vw - padX - L.w + "px";
     } else {

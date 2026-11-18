@@ -1,5 +1,5 @@
 /* =====================================================================
-   Lenny Gujer — Portfolio. Layout für Desktop-Browser.
+   Lenny Gujer — Portfolio. Desktop (alle Bildformate), Tablet und Handy.
    ===================================================================== */
 :root{
   --paper:#DDD9D1;
@@ -44,7 +44,7 @@ p{text-wrap:pretty}
 
 /* ---------- Generator-Sequenz ---------- */
 .seq{position:relative}
-.seq-pin{position:sticky;top:0;height:100vh;overflow:hidden;background:var(--dark);color:var(--paper)}
+.seq-pin{position:sticky;top:0;height:100vh;height:100dvh;overflow:hidden;background:var(--dark);color:var(--paper)}
 .seq-pin.lit{color:var(--ink)}
 #gl{position:absolute;inset:0;width:100%;height:100%;display:block}
 #leaders{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
@@ -59,23 +59,23 @@ p{text-wrap:pretty}
 .lab.hi{background:var(--ink);color:var(--paper)}
 
 /* Intro */
-.intro{position:absolute;left:var(--pad);bottom:7vh;will-change:transform,opacity}
+.intro{position:absolute;left:calc(var(--side,0px) + var(--pad));bottom:7vh;will-change:transform,opacity}
 .intro .role{margin:0 0 22px .5vw;opacity:.75}
 #name{font:800 clamp(90px,13.4vw,236px)/.84 var(--serif);letter-spacing:-.012em;text-shadow:0 0 40px rgba(15,14,13,.55)}
 #name .ln{display:block;overflow:hidden;padding:.06em .04em .02em 0}
 #name .ch{display:inline-block;transform:translateY(105%);animation:rise 1s var(--ease) forwards;animation-delay:calc(var(--i)*45ms + .15s)}
 #name .dot{color:var(--cop)}
 @keyframes rise{to{transform:none}}
-.hint{position:absolute;right:var(--pad);bottom:7vh;display:flex;align-items:center;gap:14px;opacity:.7}
+.hint{position:absolute;right:calc(var(--side,0px) + var(--pad));bottom:7vh;display:flex;align-items:center;gap:14px;opacity:.7}
 .hint::after{content:"";width:1px;height:46px;background:linear-gradient(currentColor,transparent);animation:drop 1.8s ease-in-out infinite}
 @keyframes drop{0%{transform:scaleY(0);transform-origin:top}55%{transform:scaleY(1);transform-origin:top}56%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
 
 /* Übersicht und Etappen-Karten (oben links) */
-.ov,.cards{position:absolute;left:var(--pad);top:15vh;width:min(34rem,33vw)}
+.ov,.cards{position:absolute;left:calc(var(--side,0px) + var(--pad));top:max(96px,15vh);width:min(34rem,33vw)}
 .ov{opacity:0;visibility:hidden}
 .eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:22px;color:var(--dim)}
 .eyebrow i{width:9px;height:9px;border-radius:50%;background:var(--c,var(--cop))}
-.ov h2{font:600 clamp(46px,5.1vw,84px)/.98 var(--serif);margin-bottom:22px}
+.ov h2{font:600 clamp(36px,min(5.1vw,8.6vh),84px)/.98 var(--serif);margin-bottom:22px}
 .lead{font-size:clamp(19px,1.45vw,23px);line-height:1.45;color:var(--dim);max-width:31em}
 .specs{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;gap:0 34px;margin:28px 0 30px}
 .specs div{border-top:1px solid var(--rule);padding:10px 0 14px;min-width:7.5em}
@@ -84,6 +84,9 @@ p{text-wrap:pretty}
 .btn{display:inline-flex;align-items:center;gap:.6em;padding:.85em 1.3em;border:1px solid currentColor;border-radius:999px;
   text-decoration:none;font:500 16px/1 var(--serif);transition:background .25s,color .25s;will-change:transform}
 .m-in{display:inline-flex;align-items:center;gap:.6em;will-change:transform}
+/* Pfeile als Grafik statt Schriftzeichen: iPhone und iPad würden das Zeichen ↗ sonst als Emoji zeigen. */
+.arr{display:inline-block;flex:none;width:.72em;height:.72em;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.02em}
+.r-go .arr{width:.8em;height:.8em;stroke-width:1.1}
 .btn:hover{background:var(--ink);color:var(--paper)}
 .sheet .btn:hover{background:var(--paper);color:var(--ink)}
 
@@ -99,12 +102,12 @@ p{text-wrap:pretty}
 .chip.planned{border-style:dashed;color:var(--ink)}
 .chip.planned::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--blue)}
 @keyframes blink{50%{opacity:.15}}
-.card h3{font:600 clamp(38px,3.9vw,62px)/1 var(--serif);margin-bottom:20px}
+.card h3{font:600 clamp(32px,min(3.9vw,7vh),62px)/1 var(--serif);margin-bottom:20px}
 .card p{font-size:clamp(19px,1.45vw,23px);line-height:1.45;color:var(--dim);max-width:27em}
 .card figure{margin:22px 0 0;max-width:340px;border-radius:12px;overflow:hidden}
 
 /* Oszilloskop (Etappe «Testing») */
-#scope{position:absolute;left:var(--pad);top:53vh;width:min(430px,31vw);height:150px;opacity:0;transition:opacity .4s}
+#scope{position:absolute;left:calc(var(--side,0px) + var(--pad));top:53vh;width:min(430px,31vw);height:150px;opacity:0;transition:opacity .4s}
 #scope.on{opacity:1}
 
 /* ---------- Kachel-Menü ---------- */
@@ -141,7 +144,7 @@ p{text-wrap:pretty}
 .t-skill:hover .a-chip{transform:rotate(90deg)}
 .a-at{right:4%;bottom:-9%;font:800 clamp(140px,17vw,290px)/1 var(--serif)}
 .t-contact:hover .a-at{transform:rotate(-14deg) scale(1.05)}
-.a-arrow{right:7%;bottom:-2%;font:500 clamp(90px,10vw,170px)/1 var(--serif)}
+.a-arrow{right:8%;bottom:9%;width:46%;max-height:62%;aspect-ratio:1;stroke-width:2.6!important}
 .t-gh:hover .a-arrow{transform:translate(10%,-12%)}
 .a-waves{left:0;right:0;bottom:10%;width:100%;height:46%}
 .a-waves path{stroke-width:2.4;vector-effect:non-scaling-stroke;animation:flow 2.6s linear infinite;animation-play-state:paused}
@@ -191,7 +194,7 @@ main{position:relative;z-index:1;background:var(--paper)}
 .r-title{font:600 clamp(40px,4.6vw,76px)/1 var(--serif)}
 .r-text{color:var(--dim);font-size:19px;line-height:1.4}
 .r-text em{display:block;margin-top:10px;font:500 15px/1.4 var(--serif);font-style:normal;opacity:.8}
-.r-go{font-size:44px;line-height:1;justify-self:end;transition:transform .4s var(--ease),color .25s}
+.r-go{display:flex;font-size:44px;line-height:1;justify-self:end;transition:transform .4s var(--ease),color .25s}
 .row:hover .r-go{transform:translate(6px,-6px)}
 .peek{position:fixed;left:0;top:0;z-index:40;width:330px;aspect-ratio:16/10;border-radius:16px;overflow:hidden;pointer-events:none;
   background:var(--yel);color:var(--ink);display:grid;place-items:center;font:800 150px/1 var(--serif);
@@ -262,6 +265,103 @@ main{position:relative;z-index:1;background:var(--paper)}
 .no-gl .card{margin-top:60px;pointer-events:auto}
 .no-gl .menu{position:relative;height:88vh;margin:90px calc(var(--pad)*-1) 0;visibility:visible;pointer-events:auto;transform:none!important}
 .no-gl .nav{mix-blend-mode:normal;color:var(--ink)}
+
+/* =====================================================================
+   Hochformat: Handy und Tablet hochkant (dieselbe Bedingung steht in home.js)
+   ===================================================================== */
+@media (max-width:759px), (max-aspect-ratio:9/10){
+  :root{--pad:20px}
+  body{font-size:17px}
+  .nav{padding:14px var(--pad)}
+  .logo{font-size:22px}
+  .menu-btn{padding:8px 14px 9px;font-size:15px;gap:8px}
+
+  /* Generator-Sequenz: Modell oben, Text unten */
+  .intro{bottom:max(6svh,40px);right:var(--pad)}
+  .intro .role{font-size:14px;margin:0 0 12px 2px}
+  #name{font-size:clamp(64px,21vw,170px)}
+  .hint,#labels,#leaders,#scope{display:none}
+  .ov,.cards{top:auto;bottom:max(4svh,22px);left:var(--pad);right:var(--pad);width:auto;max-width:36rem}
+  .card{top:auto;bottom:0}
+  .eyebrow{margin-bottom:12px}
+  .ov h2{font-size:clamp(34px,9.4vw,60px);margin-bottom:12px}
+  .lead{font-size:16px}
+  .specs{grid-template-columns:repeat(3,minmax(0,1fr));gap:0 16px;margin:16px 0 18px}
+  .specs div{min-width:0;padding:8px 0 10px}
+  .specs dt{font-size:13px}
+  .specs dd{font-size:17px}
+  .btn{font-size:15px}
+  .c-meta{margin-bottom:12px}
+  .card h3{font-size:clamp(30px,8.4vw,52px);margin-bottom:12px}
+  .card p{font-size:16px}
+
+  /* Kachel-Menü: 4 Spalten, 8 Zeilen */
+  .menu{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));gap:8px;padding:8px}
+  .tile{padding:14px 16px;border-radius:14px}
+  .tile h3{font-size:clamp(20px,5.8vw,34px)}
+  .tile small{font-size:12px;margin-top:4px}
+  .t-about{grid-column:1/3;grid-row:1/4}
+  .t-proj{grid-column:3/5;grid-row:1/3}
+  .t-cv{grid-column:3/5;grid-row:3/5}
+  .t-hole{grid-column:1/3;grid-row:4/6}
+  .t-skill{grid-column:3/5;grid-row:5/6}
+  .t-gh{grid-column:1/3;grid-row:6/8}
+  .t-contact{grid-column:3/5;grid-row:6/8}
+  .t-now{grid-column:1/5;grid-row:8/9}
+  .t-photo{width:74%;right:6%}
+  .a-timer{height:62%}
+  .a-path{height:62%}
+  .a-chip{width:auto;height:76%;right:6%;bottom:12%}
+  .a-at{font-size:clamp(90px,27vw,170px)}
+  .a-waves{height:40%;bottom:8%}
+
+  /* Unterseiten */
+  .p-hero{padding:116px 0 32px;border-radius:0 0 24px 24px}
+  .p-hero h1{font-size:clamp(58px,17vw,150px)}
+  .p-hero .lead{margin-top:16px}
+  .page .sec{padding:48px 0 64px}
+  .sheet{border-radius:24px;margin:0 8px}
+  .page .sheet{margin-top:8px}
+  .me-grid{grid-template-columns:1fr;gap:56px}
+  .big{font-size:clamp(28px,7.6vw,46px);margin-bottom:26px}
+  .me-more{grid-template-columns:1fr;gap:16px;font-size:17px}
+  .facts{grid-template-columns:1fr 1fr;gap:18px 24px;margin-top:34px}
+  .me-pic{max-width:440px;margin-right:7%}
+  .row{grid-template-columns:2rem minmax(0,1fr) 2rem;gap:8px 14px;padding:24px 0}
+  .row:hover{padding-left:0;padding-right:0}
+  .row::before{display:none}
+  .row:hover>*{color:inherit}
+  .r-no{grid-column:1;grid-row:1;align-self:center}
+  .r-title{grid-column:2;grid-row:1;font-size:clamp(34px,10vw,60px)}
+  .r-go{grid-column:3;grid-row:1;font-size:30px}
+  .r-text{grid-column:2/4;font-size:16px}
+  .r-when{grid-column:2/4}
+  .peek{display:none}
+  .cv-grid{grid-template-columns:1fr;gap:44px}
+  .time li{grid-template-columns:1fr;gap:4px;padding:18px 0 18px 22px}
+  .time li::before{left:0;top:25px}
+  .time .yr{padding-top:0}
+  .stack dd span{font-size:15px}
+  .huge{font-size:clamp(52px,15vw,130px)!important}
+  #waves{height:110px;margin:18px 0 22px}
+  .c-row{flex-direction:column;align-items:flex-start;gap:34px}
+  .mail{font-size:clamp(26px,7.6vw,48px)}
+  .orb{width:140px;height:140px;font-size:16px}
+  .c-links{font-size:19px;gap:24px}
+  .foot .wrap{flex-direction:column;gap:8px;font-size:14px}
+  .foot a{margin:0 22px 0 0}
+  .no-gl .seq-pin{padding:110px var(--pad) 50px}
+  .no-gl .menu{height:150vw;max-height:90vh}
+}
+/* Tablet quer und kleine Laptops */
+@media (min-width:760px) and (max-width:1100px) and (min-aspect-ratio:9/10){
+  :root{--pad:32px}
+  .ov,.cards,#scope{width:min(34rem,38vw)}
+  .me-more{grid-template-columns:1fr}
+  .facts{grid-template-columns:1fr 1fr;gap:18px 30px}
+  .row{grid-template-columns:3rem minmax(0,1fr) minmax(0,1.3fr) 3rem}
+  .r-when{display:none}
+}
 
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}

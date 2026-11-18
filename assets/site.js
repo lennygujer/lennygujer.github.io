@@ -20,14 +20,14 @@ set("#rows", el => {
       <span class="r-title">${esc(p.title)}</span>
       <span class="r-text">${esc(p.text)}<em>${p.tags.map(esc).join(", ")}</em></span>
       <span class="r-when mono">${esc(p.when)}</span>
-      <span class="r-go" aria-hidden="true">↗</span>
+      <span class="r-go"><svg class="arr" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5"/></svg></span>
     </a>`).join("") + `
     <a class="row" href="${esc(SITE.github)}" target="_blank" rel="noopener" data-rv data-letter="+">
       <span class="r-no mono">${pad(SITE.projects.length + 1)}</span>
       <span class="r-title">More on GitHub</span>
       <span class="r-text">Smaller builds and experiments live in my other repositories.</span>
       <span class="r-when mono">Ongoing</span>
-      <span class="r-go" aria-hidden="true">↗</span>
+      <span class="r-go"><svg class="arr" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5"/></svg></span>
     </a>`;
 });
 
@@ -101,8 +101,11 @@ function magnet(el, max = 22) {
   el.addEventListener("pointerleave", () => { m.tx = m.ty = 0; });
   mags.push(m);
 }
-$$(".btn,.orb,.nav a,.foot a,.mail,.c-links a").forEach(el => magnet(el));
-$$(".tile").forEach(el => magnet(el, 7));
+const mouse = matchMedia("(hover: hover) and (pointer: fine)").matches;
+if (mouse) {
+  $$(".btn,.orb,.nav a,.foot a,.mail,.c-links a").forEach(el => magnet(el));
+  $$(".tile").forEach(el => magnet(el, 7));
+}
 (function spring() {
   requestAnimationFrame(spring);
   if (reduced) return;
@@ -117,6 +120,7 @@ $$(".tile").forEach(el => magnet(el, 7));
 
 /* ---------- Projekt-Vorschau am Zeiger ---------- */
 set("#peek", peek => {
+  if (!matchMedia("(hover: hover) and (pointer: fine)").matches) return;
   let px = 0, py = 0, tx = 0, ty = 0, peeking = false;
   $$(".row").forEach(row => {
     row.addEventListener("pointerenter", () => {
