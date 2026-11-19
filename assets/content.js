@@ -84,7 +84,11 @@ window.SITE = {
       text:  "A custom-built focus timer inspired by the Pomodoro technique. Work time, break duration and number of breaks are set directly on the device.",
       tags:  ["C++", "Arduino", "CAD"],
       image: "Bilder/projekt1.jpg",
-      repo:  "https://github.com/lennygujer/Pomi" }
+      repo:  "https://github.com/lennygujer/Pomi" },
+    { title: "Camera-Pi", when: "2026, personal project",
+      text:  "Press a button to take a photo, and a short description of it appears on a small OLED display. A Raspberry Pi Zero 2 W sends the image over Tailscale to my own server, which has it described by a local vision model.",
+      tags:  ["Python", "Raspberry Pi", "Local AI"],
+      repo:  "https://github.com/lennygujer/Camera-Pi" }
   ],
 
   timeline: [
